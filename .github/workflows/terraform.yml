@@ -17,10 +17,10 @@ defaults:
     shell: bash
 env: 
   ROOT_PATH: '${{github.workspace}}/actions/terraform-azure'
-  ARM_CLIENT_ID: ${{secrets.AZURE_CLIENT_ID}}
-  ARM_CLIENT_SECRET: ${{secrets.AZURE_CLIENT_SECRET}}
-  ARM_SUBSCRIPTION_ID: ${{secrets.AZURE_SUBSCRIPTION_ID}}
-  ARM_TENANT_ID: ${{secrets.AZURE_TENANT_ID}}
+  ARM_CLIENT_ID: ${{secrets.AZURE_AD_CLIENT_ID}}
+  ARM_CLIENT_SECRET: ${{secrets.AZURE_AD_CLIENT_SECRET}}
+  ARM_SUBSCRIPTION_ID: ${{secrets.AZURE_AD_SUBSCRIPTION_ID}}
+  ARM_TENANT_ID: ${{secrets.AZURE_AD_TENANT_ID}}
   STAGE_NAME: production
 
 jobs:
@@ -37,8 +37,6 @@ jobs:
       with:
         cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
     
-    - name: azure login
-      run: az login
   
     - name: terraform init
       run: terraform init
@@ -67,8 +65,6 @@ jobs:
       with:
         cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
     
-    - name: azure login
-      run: az login
  
     - name: terraform Init
       run: terraform init
