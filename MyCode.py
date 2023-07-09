@@ -24,4 +24,4 @@ if __name__ == "__main__":
     print("The sub of {} and {} equal: {}".format(num1, num2, sub_result))
     print("The pow of {} and {} equal: {}".format(num1, num2, pow_result))
     print(arr)
-    print("End all finally :) :)")
+    print("End all finally :) :) :)")
