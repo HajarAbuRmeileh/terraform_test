@@ -11,7 +11,7 @@ variable "cluster_name" {
 }
 
 variable "kubernetes_version" {
-  default = "1.25.11"
+  default = "1.19.1"
 }
 
 variable "acr_name" {
@@ -43,5 +43,5 @@ variable "resource_group_name" {
 }
 
 variable "location" {
-  default = "westeurope"
+  default = "eastus"
 }
