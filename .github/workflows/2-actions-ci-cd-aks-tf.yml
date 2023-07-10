@@ -111,11 +111,6 @@ jobs:
         run: |
           terraform plan -no-color 
 
-  Terraform-Apply:
-    name: Terraform-Apply
-    needs: Terraform-initPlan
-    runs-on: ubuntu-latest
-    steps:
       - name: Terraform Apply
         env:
           ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
