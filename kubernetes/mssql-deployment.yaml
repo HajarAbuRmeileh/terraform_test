@@ -21,7 +21,7 @@ spec:
       # image: microsoft/mssql-server-linux
         resources:
           limits:
-            cpu: "2"
+            cpu: "6"
             memory: "3Gi"
           requests:
             cpu: "0.5"
