@@ -75,8 +75,8 @@ jobs:
           include: "infra/backend.tf"
           regex: true
 
-  Terraform initPlan:
-    name: Terraform initPlan
+  Terraform-initPlan:
+    name: Terraform-initPlan
     needs: build-doker
     runs-on: ubuntu-latest
     steps:
@@ -111,9 +111,9 @@ jobs:
         run: |
           terraform plan -no-color 
 
-  Terraform Apply:
-    name: Terraform Apply
-    needs: Terraform initPlan
+  Terraform-Apply:
+    name: Terraform-Apply
+    needs: Terraform-initPlan
     runs-on: ubuntu-latest
     steps:
       - name: Terraform Apply
