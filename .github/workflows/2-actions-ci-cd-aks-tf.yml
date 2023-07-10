@@ -11,7 +11,7 @@ on:
 
 jobs:
 
-  build-deploy-aks:
+  build-dOKER:
     runs-on: ubuntu-latest
     env:
       DOCKER_REPOSITORY: hajaraburmeileh
@@ -81,76 +81,84 @@ jobs:
         regex: true
 
     # Install the latest version of Terraform CLI
-    - name: Install Terraform
-      uses: hashicorp/setup-terraform@v1
-      with:
-        terraform_version: ${{ env.TERRAFORM_VERSION }}
+  Terraform init-Plan:
+    name: Install Terraform
+    needs: build-dOKER
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v3
+      - name: setup-terraform
+        uses: hashicorp/setup-terraform@v1
+        with:
+          terraform_version: ${{ env.TERRAFORM_VERSION }}
         
-    - name: Terraform Init
-      id: init
-      env:
-        ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
-        ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
-        ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
-        ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
-      run:
-        terraform init
+      - name: Terraform Init
+        id: init
+        env:
+          ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
+          ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
+          ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
+          ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+        run:
+          terraform init
   
     # Checks that all Terraform configuration files adhere to a canonical format
-    - name: Terraform Format
-      id: format
-      run: terraform fmt -check
-      continue-on-error: true
+      - name: Terraform Format
+        id: format
+        run: terraform fmt -check
+        continue-on-error: true
 
-    - name: Terraform Plan
-      id: plan
-      env:
-        ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
-        ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
-        ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
-        ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
-      run: |
-        terraform plan -no-color 
+      - name: Terraform Plan
+        id: plan
+        env:
+          ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
+          ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
+          ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
+          ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+        run: |
+          terraform plan -no-color 
+  Terraform Apply:
+    name: Install Terraform
+    needs: Terraform init-Plan
+    runs-on: ubuntu-latest
 
-    - name: Terraform Apply
-      env:
-        ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
-        ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
-        ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
-        ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
-      run: terraform apply -auto-approve
-
-    - name: Replace Image Name in Deployment
-      uses: cschleiden/replace-tokens@v1
-      with:
-        files: '["kubernetes/*.yaml"]'
-        tokenPrefix: __ # optional, default is #{
-        tokenSuffix: __ # optional, default is }#
-      env:
-        DOCKER_REPOSITORY: ${{ env.DOCKER_REPOSITORY }}
-        IMAGE_NAME: ${{ env.IMAGE_NAME }}
-        IMAGE_TAG: ${{ env.IMAGE_TAG }}
+      - name: Terraform Apply
+        env:
+          ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
+          ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
+          ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
+          ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+        run: terraform apply -auto-approve
+  
+      - name: Replace Image Name in Deployment
+        uses: cschleiden/replace-tokens@v1
+        with:
+          files: '["kubernetes/*.yaml"]'
+          tokenPrefix: __ # optional, default is #{
+          tokenSuffix: __ # optional, default is }#
+        env:
+          DOCKER_REPOSITORY: ${{ env.DOCKER_REPOSITORY }}
+          IMAGE_NAME: ${{ env.IMAGE_NAME }}
+          IMAGE_TAG: ${{ env.IMAGE_TAG }}
 
     # Set the target AKS cluster.
-    - uses: Azure/aks-set-context@v1
-      with:
-        creds: '${{ secrets.AZURE_CREDENTIALS }}'
-        cluster-name: ${{ env.AKS_NAME }}
-        resource-group: ${{ env.AKS_RESOURCE_GROUP }}
+      - uses: Azure/aks-set-context@v1
+        with:
+          creds: '${{ secrets.AZURE_CREDENTIALS }}'
+          cluster-name: ${{ env.AKS_NAME }}
+          resource-group: ${{ env.AKS_RESOURCE_GROUP }}
         
-    - uses: Azure/k8s-deploy@v1
-      with:
-        manifests: |
-          kubernetes/mssql-pv.azure.yaml
-          kubernetes/mssql-configmap.yaml
-          kubernetes/mssql-secret.yaml
-          kubernetes/mssql-deployment.yaml
-          kubernetes/mvc-deployment.azure.yaml
+      - uses: Azure/k8s-deploy@v1
+        with:
+          manifests: |
+            kubernetes/kubernates-deploy.yml
+  
     
-    - name: Run Kube-Bench to check cluster config
-      continue-on-error: true
-      run: |
-        kubectl apply -f https://raw.githubusercontent.com/aquasecurity/kube-bench/main/job-aks.yaml
-        sleep 30s
-        kubectl logs job.batch/kube-bench
-        kubectl delete job.batch/kube-bench
+      - name: Run Kube-Bench to check cluster config
+        continue-on-error: true
+        run: |
+          kubectl apply -f https://raw.githubusercontent.com/aquasecurity/kube-bench/main/job-aks.yaml
+          sleep 30s
+          kubectl logs job.batch/kube-bench
+          kubectl delete job.batch/kube-bench
