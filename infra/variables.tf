@@ -1,5 +1,5 @@
 variable "node_count" {
-  default = 2
+  default = 1
 }
 
 variable "dns_prefix" {
@@ -43,5 +43,5 @@ variable "resource_group_name" {
 }
 
 variable "location" {
-  default = "westus3"
+  default = "eastus"
 }
