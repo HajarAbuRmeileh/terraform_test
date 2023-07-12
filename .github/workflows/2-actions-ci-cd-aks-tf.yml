@@ -110,16 +110,16 @@ jobs:
         ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
       run: terraform apply -auto-approve
 
-    - name: Replace Image Name in Deployment
-      uses: cschleiden/replace-tokens@v1
-      with:
-        files: '["kubernetes/*.yaml"]'
-        tokenPrefix: __ # optional, default is #{
-        tokenSuffix: __ # optional, default is }#
-      env:
-        DOCKER_REPOSITORY: ${{ env.DOCKER_REPOSITORY }}
-        IMAGE_NAME: ${{ env.IMAGE_NAME }}
-        IMAGE_TAG: ${{ env.IMAGE_TAG }}
+    #- name: Replace Image Name in Deployment
+      #uses: cschleiden/replace-tokens@v1
+      #with:
+        #files: '["kubernetes/*.yaml"]'
+        #tokenPrefix: __ # optional, default is #{
+        #tokenSuffix: __ # optional, default is }#
+      #env:
+        #DOCKER_REPOSITORY: ${{ env.DOCKER_REPOSITORY }}
+        #IMAGE_NAME: ${{ env.IMAGE_NAME }}
+        #IMAGE_TAG: ${{ env.IMAGE_TAG }}
 
     # Set the target AKS cluster.
     - uses: Azure/aks-set-context@v1
