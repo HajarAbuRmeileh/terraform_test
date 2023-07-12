@@ -53,6 +53,7 @@ data "azurerm_user_assigned_identity" "identity" {
   #skip_service_principal_aad_check = true
 #}
 
+#not ness
 # resource "azurerm_sql_server" "sql" {
 #   name                         = var.sql_name
 #   resource_group_name          = azurerm_resource_group.rg.name
