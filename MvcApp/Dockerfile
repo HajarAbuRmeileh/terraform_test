@@ -1,5 +1,2 @@
 FROM nginx
-COPY index.html  /usr/share/nginx/html/index.html
-COPY MyCode.py  /usr/share/nginx/html/MyCode.py
-# Expose port 8080 for the API
-EXPOSE 8080
+COPY index.html usr /share/nginx/html/index.html
